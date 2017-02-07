@@ -21,11 +21,22 @@
         <context>event-poster-plugin</context>
     </web-resource>
 
+    <client-resource key="soy-templates">
+        <directory location="/templates/">
+            <include>/**/*.soy</include>
+        </directory>
+        <dependency>com.atlassian.bitbucket.server.bitbucket-web:server-soy-templates</dependency>
+    </client-resource>
+
     <!--?web.items&web.panels&web.sections-->
     <web-item key="repository-event-poster-settings" weight="30" section="bitbucket.repository.settings.panel/repository-settings-addons-section">
         <label key="bitbucket.server.web.repository.settings.tab.event.poster.settings">Event poster</label>
         <tooltip key="bitbucket.server.web.repository.settings.tab.event.poster.settings.tooltip">Configure repository settings for the event poster plugin</tooltip>
         <link>${navBuilder.pluginServlets().path('even-poster-repository-settings', 'projects', $project.key, 'repos', $repository.slug).buildRelNoContext()}</link>
     </web-item>
+
+    <servlet key="global-event-poster-settings-servlet" class="com.vliolios.eventposter.RepositorySettingsServlet">
+        <url-pattern>/even-poster-repository-settings/*</url-pattern>
+    </servlet>
     
 </atlassian-plugin>
