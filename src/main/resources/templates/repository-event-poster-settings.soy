@@ -1,12 +1,16 @@
 {namespace bitbucketserver.page.eventposter.settings}
 
 /**
- * Repository settings
- */
+ * @param repository
+ **/
 {template .repositoryEventPosterSettings}
     <html>
         <head>
-            <title>Event poster repository settings</title>
+            <meta name="decorator" content="bitbucket.repository.settings">
+            <meta name="projectKey" content="{$repository.project.key}">
+            <meta name="repositorySlug" content="{$repository.slug}">
+            <meta name="activeTab" content="even-poster-repository-settings">
+            <title>{{getText('event.poster.plugin.repository.settings.title')}}</title>
         </head>
         <body>
             <h1>Rendered soy page</h1>
