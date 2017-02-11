@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Named;
 
-@Named("pullRequestActivityEventListener")
+@Named
 public class PullRequestActivityEventListener {
 
     private static final Logger log = LoggerFactory.getLogger(PullRequestActivityEventListener.class);

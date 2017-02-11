@@ -2,6 +2,7 @@
 
 /**
  * @param repository
+ * @param eventPosterSettings
  **/
 {template .repositoryEventPosterSettings}
     <html>
@@ -10,10 +11,34 @@
             <meta name="projectKey" content="{$repository.project.key}">
             <meta name="repositorySlug" content="{$repository.slug}">
             <meta name="activeTab" content="even-poster-repository-settings">
-            <title>{{getText('event.poster.plugin.repository.settings.title')}}</title>
+            <title>{{getText('event.poster.plugin.repository.settings.heading')}}</title>
         </head>
         <body>
-            <h1>Rendered soy page</h1>
+        {call widget.aui.pageHeader}
+            {param content}
+                <h2>{getText('event.poster.plugin.repository.settings.title')}</h2>
+            {/param}
+        {/call}
+        {call widget.aui.form.form}
+            {param action: '' /}
+            {param content}
+                {call widget.aui.form.text}
+                    {param id: 'webhook' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.webhook.label') /}
+                    {param initialValue: $eventPosterSettings.webhook /}
+                    {param description: getText('event.poster.plugin.repository.settings.webhook.description') /}
+                {/call}
+                {call aui.form.buttons}
+                    {param content}
+                        {call aui.form.submit}
+                            {param id: 'bitbucketserver.event.poster.repository.settings.submit' /}
+                            {param text: getText('event.poster.plugin.repository.settings.submit') /}
+                            {param type: 'submit' /}
+                        {/call}
+                    {/param}
+                {/call}
+            {/param}
+        {/call}
         </body>
     </html>
 {/template}
