@@ -21,6 +21,9 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -71,7 +74,11 @@ public class PullRequestActivityEventListener {
 				        .writer(filters)
 				        .writeValueAsString(event);
 
-		        restTemplate.postForEntity(webhook, eventJson, String.class, new HashMap<String, String>());
+		        HttpHeaders headers = new HttpHeaders();
+		        headers.setContentType(MediaType.APPLICATION_JSON);
+		        HttpEntity<String> entity = new HttpEntity<>(eventJson, headers);
+
+		        restTemplate.postForEntity(webhook, entity, String.class, new HashMap<String, String>());
 	        } catch (IOException e) {
 		        throw new RuntimeException(e);
 	        }
