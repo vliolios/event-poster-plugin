@@ -1,8 +1,7 @@
 package com.vliolios.eventposter;
 
 import com.atlassian.bitbucket.comment.Comment;
-import com.atlassian.bitbucket.event.pull.PullRequestActivityEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestCommentActivityEvent;
+import com.atlassian.bitbucket.event.pull.*;
 import com.atlassian.bitbucket.pull.PullRequestParticipant;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.user.ApplicationUser;
@@ -36,57 +35,82 @@ import java.util.Map;
 @Named
 public class PullRequestActivityEventListener {
 
-    private static final Logger log = LoggerFactory.getLogger(PullRequestActivityEventListener.class);
+	private static final Logger log = LoggerFactory.getLogger(PullRequestActivityEventListener.class);
 
-    private final PluginSettings pluginSettings;
+	private final PluginSettings pluginSettings;
 
-    @Inject
-    public PullRequestActivityEventListener(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
-        this.pluginSettings = pluginSettingsFactory.createSettingsForKey("com.vliolios.event-poster-plugin");
-    }
+	@Inject
+	public PullRequestActivityEventListener(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
+		this.pluginSettings = pluginSettingsFactory.createSettingsForKey("com.vliolios.event-poster-plugin");
+	}
 
-    @EventListener
-    public void postEvent(PullRequestCommentActivityEvent event) {
-        Repository repository = event.getPullRequest().getToRef().getRepository();
-        String webhook = ((Map<String, String>)pluginSettings.get(Integer.toString(repository.getId()))).get("webhook");
+	@EventListener
+	public void postPullRequestEvent(PullRequestCommentAddedEvent event) {
+		postEvent(event, PullRequestCommentAddedEvent.class);
+	}
 
-        if (StringUtils.hasText(webhook)) {
-	        RestTemplate restTemplate = new RestTemplate();
-	        try {
-		        SimpleBeanPropertyFilter eventFilter = SimpleBeanPropertyFilter.serializeAllExcept("source");
-		        SimpleBeanPropertyFilter userFilter = SimpleBeanPropertyFilter.serializeAllExcept("backingCrowdUser");
-		        SimpleBeanPropertyFilter watcherFilter = SimpleBeanPropertyFilter.serializeAllExcept("watchable");
-		        SimpleBeanPropertyFilter participantFilter = SimpleBeanPropertyFilter.serializeAllExcept("pullRequest", "entity");
-		        SimpleBeanPropertyFilter commentFilter = SimpleBeanPropertyFilter.serializeAllExcept("root", "parent");
-		        FilterProvider filters = new SimpleFilterProvider()
-				        .addFilter("eventFilter", eventFilter)
-				        .addFilter("userFilter", userFilter)
-				        .addFilter("watcherFilter", watcherFilter)
-				        .addFilter("participantFilter", participantFilter)
-				        .addFilter("commentFilter", commentFilter);
+	@EventListener
+	public void postPullRequestEvent(PullRequestCommentDeletedEvent event) {
+		postEvent(event, PullRequestCommentDeletedEvent.class);
+	}
 
-		        String eventJson = new ObjectMapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-				        .addMixIn(PullRequestCommentActivityEvent.class, PullRequestCommentActivityEventMixIn.class)
-				        .addMixIn(ApplicationUser.class, ApplicationUserMixIn.class)
-				        .addMixIn(Watcher.class, WatcherMixIn.class)
-				        .addMixIn(PullRequestParticipant.class, PullRequestParticipantMixIn.class)
-				        .addMixIn(Comment.class, CommentMixIn.class)
-				        .writer(filters)
-				        .writeValueAsString(event);
+	@EventListener
+	public void postPullRequestEvent(PullRequestCommentEditedEvent event) {
+		postEvent(event, PullRequestCommentEditedEvent.class);
+	}
 
-		        HttpHeaders headers = new HttpHeaders();
-		        headers.setContentType(MediaType.APPLICATION_JSON);
-		        HttpEntity<String> entity = new HttpEntity<>(eventJson, headers);
+	@EventListener
+	public void postPullRequestEvent(PullRequestCommentRepliedEvent event) {
+		postEvent(event, PullRequestCommentRepliedEvent.class);
+	}
 
-		        restTemplate.postForEntity(webhook, entity, String.class, new HashMap<String, String>());
-	        } catch (IOException e) {
-		        throw new RuntimeException(e);
-	        }
-        }
-    }
+	@EventListener
+	public void postPullRequestEvent(PullRequestCommitCommentAddedEvent event) {
+		postEvent(event, PullRequestCommitCommentAddedEvent.class);
+	}
+
+	private <T extends PullRequestEvent> void postEvent(PullRequestEvent pullRequestEvent, Class<T> clazz) {
+		T event = (T) pullRequestEvent;
+		Repository repository = event.getPullRequest().getToRef().getRepository();
+		String webhook = ((Map<String, String>) pluginSettings.get(Integer.toString(repository.getId()))).get("webhook");
+
+		if (StringUtils.hasText(webhook)) {
+			RestTemplate restTemplate = new RestTemplate();
+			try {
+				SimpleBeanPropertyFilter eventFilter = SimpleBeanPropertyFilter.serializeAllExcept("source");
+				SimpleBeanPropertyFilter userFilter = SimpleBeanPropertyFilter.serializeAllExcept("backingCrowdUser");
+				SimpleBeanPropertyFilter watcherFilter = SimpleBeanPropertyFilter.serializeAllExcept("watchable");
+				SimpleBeanPropertyFilter participantFilter = SimpleBeanPropertyFilter.serializeAllExcept("pullRequest", "entity");
+				SimpleBeanPropertyFilter commentFilter = SimpleBeanPropertyFilter.serializeAllExcept("root", "parent", "comments");
+				FilterProvider filters = new SimpleFilterProvider()
+						.addFilter("eventFilter", eventFilter)
+						.addFilter("userFilter", userFilter)
+						.addFilter("watcherFilter", watcherFilter)
+						.addFilter("participantFilter", participantFilter)
+						.addFilter("commentFilter", commentFilter);
+
+				String eventJson = new ObjectMapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+						.addMixIn(PullRequestEvent.class, PullRequestEventMixIn.class)
+						.addMixIn(ApplicationUser.class, ApplicationUserMixIn.class)
+						.addMixIn(Watcher.class, WatcherMixIn.class)
+						.addMixIn(PullRequestParticipant.class, PullRequestParticipantMixIn.class)
+						.addMixIn(Comment.class, CommentMixIn.class)
+						.writer(filters)
+						.writeValueAsString(event);
+
+				HttpHeaders headers = new HttpHeaders();
+				headers.setContentType(MediaType.APPLICATION_JSON);
+				HttpEntity<String> entity = new HttpEntity<>(eventJson, headers);
+
+				restTemplate.postForEntity(webhook, entity, String.class, new HashMap<String, String>());
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
 
 	@JsonFilter("eventFilter")
-	public class PullRequestCommentActivityEventMixIn {}
+	public class PullRequestEventMixIn {}
 
 	@JsonFilter("userFilter")
 	public class ApplicationUserMixIn {}
