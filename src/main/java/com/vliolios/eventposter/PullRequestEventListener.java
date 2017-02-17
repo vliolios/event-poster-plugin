@@ -33,15 +33,55 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Named
-public class PullRequestActivityEventListener {
+public class PullRequestEventListener {
 
-	private static final Logger log = LoggerFactory.getLogger(PullRequestActivityEventListener.class);
+	private static final Logger log = LoggerFactory.getLogger(PullRequestEventListener.class);
 
 	private final PluginSettings pluginSettings;
 
 	@Inject
-	public PullRequestActivityEventListener(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
+	public PullRequestEventListener(@ComponentImport PluginSettingsFactory pluginSettingsFactory) {
 		this.pluginSettings = pluginSettingsFactory.createSettingsForKey("com.vliolios.event-poster-plugin");
+	}
+
+	@EventListener
+	public void postPullRequestEvent(PullRequestReviewersUpdatedEvent event) {
+		postEvent(event, PullRequestReviewersUpdatedEvent.class);
+	}
+
+	@EventListener
+	public void postPullRequestEvent(PullRequestUpdatedEvent event) {
+		postEvent(event, PullRequestUpdatedEvent.class);
+	}
+
+	@EventListener
+	public void postPullRequestEvent(PullRequestReopenedEvent event) {
+		postEvent(event, PullRequestReopenedEvent.class);
+	}
+
+	@EventListener
+	public void postPullRequestEvent(PullRequestRescopedEvent event) {
+		postEvent(event, PullRequestRescopedEvent.class);
+	}
+
+	@EventListener
+	public void postPullRequestEvent(PullRequestParticipantStatusUpdatedEvent event) {
+		postEvent(event, PullRequestParticipantStatusUpdatedEvent.class);
+	}
+
+	@EventListener
+	public void postPullRequestEvent(PullRequestMergedEvent event) {
+		postEvent(event, PullRequestMergedEvent.class);
+	}
+
+	@EventListener
+	public void postPullRequestEvent(PullRequestOpenedEvent event) {
+		postEvent(event, PullRequestOpenedEvent.class);
+	}
+
+	@EventListener
+	public void postPullRequestEvent(PullRequestDeclinedEvent event) {
+		postEvent(event, PullRequestDeclinedEvent.class);
 	}
 
 	@EventListener
