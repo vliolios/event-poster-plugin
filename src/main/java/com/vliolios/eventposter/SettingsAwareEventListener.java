@@ -7,8 +7,6 @@ import com.atlassian.bitbucket.pull.PullRequestParticipant;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.bitbucket.watcher.Watcher;
-import com.atlassian.sal.api.pluginsettings.PluginSettings;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,7 +23,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 class SettingsAwareEventListener {
 
@@ -35,7 +32,7 @@ class SettingsAwareEventListener {
 		this.repositorySettingsService = repositorySettingsService;
 	}
 
-	<T extends ApplicationEvent> void postEvent(ApplicationEvent applicationEvent, Repository repository, Class<T> clazz) {
+	void postEvent(ApplicationEvent applicationEvent, Repository repository) {
 		String eventJson = convertToJsonString(applicationEvent);
 		HttpEntity<String> entity = createEntityWithHeaders(eventJson);
 		doPost(repository, entity);
@@ -47,8 +44,7 @@ class SettingsAwareEventListener {
 		doPost(repository, entity);
 	}
 
-	private <T extends ApplicationEvent> String convertToJsonString(T applicationEvent) {
-		T event = (T) applicationEvent;
+	private String convertToJsonString(ApplicationEvent event) {
 		try {
 			SimpleBeanPropertyFilter eventFilter = SimpleBeanPropertyFilter.serializeAllExcept("source");
 			SimpleBeanPropertyFilter userFilter = SimpleBeanPropertyFilter.serializeAllExcept("backingCrowdUser");
@@ -84,8 +80,7 @@ class SettingsAwareEventListener {
 		}
 	}
 
-	<T extends ApplicationEvent> JsonNode convertToJsonNode(T applicationEvent) {
-		T event = (T) applicationEvent;
+	JsonNode convertToJsonNode(ApplicationEvent event) {
 		try {
 			return new ObjectMapper().readTree(convertToJsonString(event));
 		} catch (IOException e) {

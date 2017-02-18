@@ -21,73 +21,72 @@ public class PullRequestEventListener extends SettingsAwareEventListener {
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestReviewersUpdatedEvent event) {
-		Repository repository = event.getPullRequest().getToRef().getRepository();
-		postEvent(event, PullRequestReviewersUpdatedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestUpdatedEvent event) {
-		postEvent(event, PullRequestUpdatedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestReopenedEvent event) {
-		postEvent(event, PullRequestReopenedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestRescopedEvent event) {
-		postEvent(event, PullRequestRescopedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestParticipantStatusUpdatedEvent event) {
-		postEvent(event, PullRequestParticipantStatusUpdatedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestMergedEvent event) {
-		postEvent(event, PullRequestMergedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestOpenedEvent event) {
-		postEvent(event, PullRequestOpenedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestDeclinedEvent event) {
-		postEvent(event, PullRequestDeclinedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommentAddedEvent event) {
-		postEvent(event, PullRequestCommentAddedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommentDeletedEvent event) {
-		postEvent(event, PullRequestCommentDeletedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommentEditedEvent event) {
-		postEvent(event, PullRequestCommentEditedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommentRepliedEvent event) {
-		postEvent(event, PullRequestCommentRepliedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommitCommentAddedEvent event) {
-		postEvent(event, PullRequestCommitCommentAddedEvent.class);
+		postEvent(event);
 	}
 
-	private <T extends PullRequestEvent> void postEvent(PullRequestEvent event, Class<T> clazz) {
+	private void postEvent(PullRequestEvent event) {
 		Repository repository = event.getPullRequest().getToRef().getRepository();
-		postEvent(event, repository, clazz);
+		postEvent(event, repository);
 	}
 
 }

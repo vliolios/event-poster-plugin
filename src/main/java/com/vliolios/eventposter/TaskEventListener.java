@@ -26,20 +26,20 @@ public class TaskEventListener extends SettingsAwareEventListener {
 
 	@EventListener
 	public void postPullRequestEvent(TaskCreatedEvent event) {
-		postEvent(event, TaskCreatedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(TaskDeletedEvent event) {
-		postEvent(event, TaskDeletedEvent.class);
+		postEvent(event);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(TaskUpdatedEvent event) {
-		postEvent(event, TaskUpdatedEvent.class);
+		postEvent(event);
 	}
 
-	private <T extends TaskEvent> void postEvent(TaskEvent event, Class<T> clazz) {
+	private <T extends TaskEvent> void postEvent(TaskEvent event) {
 		JsonNode eventJsonNode = convertToJsonNode(event);
 		int repositoryId = eventJsonNode.path("task").path("context").path("fromRef").path("repository").path("id").asInt();
 		Repository repository = repositoryService.getById(repositoryId);
