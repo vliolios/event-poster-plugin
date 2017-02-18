@@ -6,36 +6,35 @@ import com.atlassian.bitbucket.event.task.TaskEvent;
 import com.atlassian.bitbucket.event.task.TaskUpdatedEvent;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.RepositoryService;
+import com.atlassian.event.api.EventListener;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-public class TaskEventListener extends EventListener {
+public class TaskEventListener extends SettingsAwareEventListener {
 
 	private final RepositoryService repositoryService;
 
 	@Inject
-	public TaskEventListener(@ComponentImport PluginSettingsFactory pluginSettingsFactory,
-	                         @ComponentImport RepositoryService repositoryService) {
-		super(pluginSettingsFactory);
+	public TaskEventListener(RepositorySettingsService repositorySettingsService, @ComponentImport RepositoryService repositoryService) {
+		super(repositorySettingsService);
 		this.repositoryService = repositoryService;
 	}
 
-	@com.atlassian.event.api.EventListener
+	@EventListener
 	public void postPullRequestEvent(TaskCreatedEvent event) {
 		postEvent(event, TaskCreatedEvent.class);
 	}
 
-	@com.atlassian.event.api.EventListener
+	@EventListener
 	public void postPullRequestEvent(TaskDeletedEvent event) {
 		postEvent(event, TaskDeletedEvent.class);
 	}
 
-	@com.atlassian.event.api.EventListener
+	@EventListener
 	public void postPullRequestEvent(TaskUpdatedEvent event) {
 		postEvent(event, TaskUpdatedEvent.class);
 	}

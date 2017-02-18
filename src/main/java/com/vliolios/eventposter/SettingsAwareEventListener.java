@@ -27,12 +27,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-class EventListener {
+class SettingsAwareEventListener {
 
-	private final PluginSettings pluginSettings;
+	private final RepositorySettingsService repositorySettingsService;
 
-	EventListener(PluginSettingsFactory pluginSettingsFactory) {
-		this.pluginSettings = pluginSettingsFactory.createSettingsForKey("com.vliolios.event-poster-plugin");
+	SettingsAwareEventListener(RepositorySettingsService repositorySettingsService) {
+		this.repositorySettingsService = repositorySettingsService;
 	}
 
 	<T extends ApplicationEvent> void postEvent(ApplicationEvent applicationEvent, Repository repository, Class<T> clazz) {
@@ -94,7 +94,7 @@ class EventListener {
 	}
 
 	private void doPost(Repository repository, HttpEntity<String> entity) {
-		String webhook = ((Map<String, String>) pluginSettings.get(Integer.toString(repository.getId()))).get("webhook");
+		String webhook = repositorySettingsService.getSettings(repository.getId()).get("webhook");
 		if (StringUtils.hasText(webhook)) {
 			RestTemplate restTemplate = new RestTemplate();
 			restTemplate.postForEntity(webhook, entity, String.class, new HashMap<String, String>());

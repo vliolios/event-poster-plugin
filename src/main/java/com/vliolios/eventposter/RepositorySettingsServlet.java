@@ -24,24 +24,20 @@ public class RepositorySettingsServlet extends HttpServlet {
 
 	private final SoyTemplateRenderer soyTemplateRenderer;
 	private final RepositoryService repositoryService;
-	private final PluginSettings pluginSettings;
+	private final RepositorySettingsService repositorySettingsService;
 
 	@Inject
 	public RepositorySettingsServlet(@ComponentImport SoyTemplateRenderer soyTemplateRenderer, @ComponentImport RepositoryService repositoryService,
-	                                 @ComponentImport PluginSettingsFactory pluginSettingsFactory) {
+	                                 RepositorySettingsService repositorySettingsService) {
 		this.soyTemplateRenderer = soyTemplateRenderer;
 		this.repositoryService = repositoryService;
-		this.pluginSettings = pluginSettingsFactory.createSettingsForKey("com.vliolios.event-poster-plugin");
+		this.repositorySettingsService = repositorySettingsService;
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Repository repository = loadRepository(request);
-		Map<String, String> settings = (Map<String, String>) pluginSettings.get(Integer.toString(repository.getId()));
-		if (settings == null) {
-			settings = ImmutableMap.<String, String>builder().put("webhook", "").build();
-			pluginSettings.put(Integer.toString(repository.getId()), settings);
-		}
+		Map<String, String> settings = repositorySettingsService.getSettings(repository.getId());
 		renderSettingsView(request, response, repository, settings);
 	}
 
@@ -50,8 +46,7 @@ public class RepositorySettingsServlet extends HttpServlet {
 
 		String webhook = request.getParameter("webhook");
 		Repository repository = loadRepository(request);
-		Map<String, String> settings = ImmutableMap.<String, String>builder().put("webhook", webhook).build();
-		pluginSettings.put(Integer.toString(repository.getId()), settings);
+		Map<String, String> settings = repositorySettingsService.setSettings(repository.getId(), webhook);
 		renderSettingsView(request, response, repository, settings);
 	}
 
