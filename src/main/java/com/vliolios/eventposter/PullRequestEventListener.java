@@ -11,16 +11,15 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-public class PullRequestEventListener extends EventPostingEventListener {
-
-	private static final Logger log = LoggerFactory.getLogger(PullRequestEventListener.class);
+public class PullRequestEventListener {
 
 	private final RepositorySettingsService repositorySettingsService;
+	private final EventPoster eventPoster;
 
 	@Inject
-	public PullRequestEventListener(RepositorySettingsService repositorySettingsService) {
-		super();
+	public PullRequestEventListener(RepositorySettingsService repositorySettingsService, EventPoster eventPoster) {
 		this.repositorySettingsService = repositorySettingsService;
+		this.eventPoster = eventPoster;
 	}
 
 	@EventListener
@@ -92,7 +91,7 @@ public class PullRequestEventListener extends EventPostingEventListener {
 		Repository repository = event.getPullRequest().getToRef().getRepository();
 		RepositorySettings repositorySettings = repositorySettingsService.getSettings(repository.getId());
 		if (StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
-			postEvent(event, repositorySettings.getWebhook());
+			eventPoster.postEvent(event, repositorySettings.getWebhook());
 		}
 	}
 

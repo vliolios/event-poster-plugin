@@ -12,14 +12,18 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-public class TaskEventListener extends EventPostingEventListener {
+public class TaskEventListener {
 
-	private RepositorySettingsService repositorySettingsService;
+	private final RepositorySettingsService repositorySettingsService;
+	private final EventPoster eventPoster;
+	private final EventToJsonConverter eventToJsonConverter;
 
 	@Inject
-	public TaskEventListener(RepositorySettingsService repositorySettingsService) {
+	public TaskEventListener(RepositorySettingsService repositorySettingsService, EventPoster eventPoster, EventToJsonConverter eventToJsonConverter) {
 		super();
 		this.repositorySettingsService = repositorySettingsService;
+		this.eventPoster = eventPoster;
+		this.eventToJsonConverter = eventToJsonConverter;
 	}
 
 	@EventListener
@@ -39,12 +43,12 @@ public class TaskEventListener extends EventPostingEventListener {
 
 
 	private void postEvent(TaskEvent event, RepositorySettingsChecker checker) {
-		JsonNode eventJsonNode = convertToJsonNode(event);
+		JsonNode eventJsonNode = eventToJsonConverter.convertToJsonNode(event);
 		int repositoryId = eventJsonNode.path("task").path("context").path("fromRef").path("repository").path("id").asInt();
 		RepositorySettings repositorySettings = repositorySettingsService.getSettings(repositoryId);
 
 		if (StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
-			postEvent(eventJsonNode, repositorySettings.getWebhook());
+			eventPoster.postEvent(eventJsonNode, repositorySettings.getWebhook());
 		}
 	}
 

@@ -14,29 +14,14 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.web.client.RestTemplate;
 
+import javax.inject.Named;
 import java.io.IOException;
-import java.util.HashMap;
 
-class EventPostingEventListener {
+@Named
+public class EventToJsonConverter {
 
-	void postEvent(ApplicationEvent applicationEvent, String destinationURL) {
-		String eventJson = convertToJsonString(applicationEvent);
-		HttpEntity<String> entity = createEntityWithHeaders(eventJson);
-		doPost(entity, destinationURL);
-	}
-
-	void postEvent(JsonNode eventJsonNode, String destinationURL) {
-		String eventJson = convertToJsonString(eventJsonNode);
-		HttpEntity<String> entity = createEntityWithHeaders(eventJson);
-		doPost(entity, destinationURL);
-	}
-
-	private String convertToJsonString(ApplicationEvent event) {
+	String convertToJsonString(ApplicationEvent event) {
 		try {
 			SimpleBeanPropertyFilter eventFilter = SimpleBeanPropertyFilter.serializeAllExcept("source");
 			SimpleBeanPropertyFilter userFilter = SimpleBeanPropertyFilter.serializeAllExcept("backingCrowdUser");
@@ -64,7 +49,7 @@ class EventPostingEventListener {
 		}
 	}
 
-	private  String convertToJsonString(JsonNode jsonNode) {
+	String convertToJsonString(JsonNode jsonNode) {
 		try {
 			return new ObjectMapper().writeValueAsString(jsonNode);
 		} catch (JsonProcessingException e) {
@@ -80,16 +65,6 @@ class EventPostingEventListener {
 		}
 	}
 
-	private void doPost(HttpEntity<String> entity, String destinationURL) {
-		RestTemplate restTemplate = new RestTemplate();
-		restTemplate.postForEntity(destinationURL, entity, String.class, new HashMap<String, String>());
-	}
-
-	private HttpEntity<String> createEntityWithHeaders(String eventJson) {
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		return new HttpEntity<>(eventJson, headers);
-	}
 
 	@JsonFilter("eventFilter")
 	private class PullRequestEventMixIn {}
