@@ -3,8 +3,6 @@ package com.vliolios.eventposter;
 import com.atlassian.bitbucket.event.pull.*;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.event.api.EventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
@@ -90,7 +88,7 @@ public class PullRequestEventListener {
 	private void postEvent(PullRequestEvent event, RepositorySettingsChecker checker) {
 		Repository repository = event.getPullRequest().getToRef().getRepository();
 		RepositorySettings repositorySettings = repositorySettingsService.getSettings(repository.getId());
-		if (StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
+		if (repositorySettings != null && StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
 			eventPoster.postEvent(event, repositorySettings.getWebhook());
 		}
 	}

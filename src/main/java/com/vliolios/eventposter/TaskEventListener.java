@@ -20,24 +20,23 @@ public class TaskEventListener {
 
 	@Inject
 	public TaskEventListener(RepositorySettingsService repositorySettingsService, EventPoster eventPoster, EventToJsonConverter eventToJsonConverter) {
-		super();
 		this.repositorySettingsService = repositorySettingsService;
 		this.eventPoster = eventPoster;
 		this.eventToJsonConverter = eventToJsonConverter;
 	}
 
 	@EventListener
-	public void postPullRequestEvent(TaskCreatedEvent event) {
+	public void postTaskEvent(TaskCreatedEvent event) {
 		postEvent(event, settings -> settings.isTaskCreatedOn());
 	}
 
 	@EventListener
-	public void postPullRequestEvent(TaskDeletedEvent event) {
+	public void postTaskEvent(TaskDeletedEvent event) {
 		postEvent(event, settings -> settings.isTaskDeletedOn());
 	}
 
 	@EventListener
-	public void postPullRequestEvent(TaskUpdatedEvent event) {
+	public void postTaskEvent(TaskUpdatedEvent event) {
 		postEvent(event, settings -> settings.isTaskUpdatedOn());
 	}
 
@@ -47,7 +46,7 @@ public class TaskEventListener {
 		int repositoryId = eventJsonNode.path("task").path("context").path("fromRef").path("repository").path("id").asInt();
 		RepositorySettings repositorySettings = repositorySettingsService.getSettings(repositoryId);
 
-		if (StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
+		if (repositorySettings != null && StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
 			eventPoster.postEvent(eventJsonNode, repositorySettings.getWebhook());
 		}
 	}

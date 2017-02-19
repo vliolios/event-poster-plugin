@@ -1,4 +1,4 @@
-# Event poster plugin - Bitbucket Server
+# Event poster plugin - Bitbucket Server [![Build Status](https://travis-ci.org/vliolios/event-poster-plugin.svg?branch=master)](https://travis-ci.org/vliolios/event-poster-plugin)
 
 A plugin that listens to Bitbucket Server events and posts them to a URL specified in each repository's settings.
 
