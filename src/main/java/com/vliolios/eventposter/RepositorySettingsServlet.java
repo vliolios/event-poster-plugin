@@ -6,6 +6,7 @@ import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.soy.renderer.SoyException;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
 import com.google.common.collect.ImmutableMap;
+import org.apache.commons.lang3.BooleanUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -34,16 +35,15 @@ public class RepositorySettingsServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Repository repository = loadRepository(request);
-		Map<String, String> settings = repositorySettingsService.getSettings(repository.getId());
+		RepositorySettings settings = repositorySettingsService.getSettings(repository.getId());
 		renderSettingsView(request, response, repository, settings);
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		String webhook = request.getParameter("webhook");
 		Repository repository = loadRepository(request);
-		Map<String, String> settings = repositorySettingsService.setSettings(repository.getId(), webhook);
+		RepositorySettings settings = repositorySettingsService.setSettings(repository.getId(), getSettingsFromRequest(request));
 		renderSettingsView(request, response, repository, settings);
 	}
 
@@ -57,7 +57,7 @@ public class RepositorySettingsServlet extends HttpServlet {
 		return repositoryService.getBySlug(projectKey, repoSlug);
 	}
 
-	private void renderSettingsView(HttpServletRequest request, HttpServletResponse response, Repository repository, Map<String, String> settings) throws IOException, ServletException {
+	private void renderSettingsView(HttpServletRequest request, HttpServletResponse response, Repository repository, RepositorySettings settings) throws IOException, ServletException {
 		response.setContentType("text/html;charset=UTF-8");
 		try {
 
@@ -73,5 +73,27 @@ public class RepositorySettingsServlet extends HttpServlet {
 			}
 			throw new ServletException(e);
 		}
+	}
+
+	private RepositorySettings getSettingsFromRequest(HttpServletRequest request) {
+		return new RepositorySettings.Builder()
+				.webhook(request.getParameter("webhook"))
+				.pullRequestReviewersUpdatedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestReviewersUpdatedOn")))
+				.pullRequestUpdatedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestUpdatedOn")))
+				.pullRequestReopenedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestReopenedOn")))
+				.pullRequestRescopedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestRescopedOn")))
+				.pullRequestParticipantStatusUpdatedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestParticipantStatusUpdatedOn")))
+				.pullRequestMergedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestMergedOn")))
+				.pullRequestOpenedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestOpenedOn")))
+				.pullRequestDeclinedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestDeclinedOn")))
+				.pullRequestCommentAddedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestCommentAddedOn")))
+				.pullRequestCommentDeletedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestCommentDeletedOn")))
+				.pullRequestCommentEditedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestCommentEditedOn")))
+				.pullRequestCommentRepliedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestCommentRepliedOn")))
+				.pullRequestCommitCommentAddedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestCommitCommentAddedOn")))
+				.taskCreatedOn(BooleanUtils.toBoolean(request.getParameter("taskCreatedOn")))
+				.taskDeletedOn(BooleanUtils.toBoolean(request.getParameter("taskDeletedOn")))
+				.taskUpdatedOn(BooleanUtils.toBoolean(request.getParameter("taskUpdatedOn")))
+				.build();
 	}
 }

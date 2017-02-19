@@ -4,7 +4,6 @@ import com.atlassian.bitbucket.comment.Comment;
 import com.atlassian.bitbucket.event.ApplicationEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestEvent;
 import com.atlassian.bitbucket.pull.PullRequestParticipant;
-import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.bitbucket.watcher.Watcher;
 import com.fasterxml.jackson.annotation.JsonFilter;
@@ -18,30 +17,23 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.HashMap;
 
-class SettingsAwareEventListener {
+class EventPostingEventListener {
 
-	private final RepositorySettingsService repositorySettingsService;
-
-	SettingsAwareEventListener(RepositorySettingsService repositorySettingsService) {
-		this.repositorySettingsService = repositorySettingsService;
-	}
-
-	void postEvent(ApplicationEvent applicationEvent, Repository repository) {
+	void postEvent(ApplicationEvent applicationEvent, String destinationURL) {
 		String eventJson = convertToJsonString(applicationEvent);
 		HttpEntity<String> entity = createEntityWithHeaders(eventJson);
-		doPost(repository, entity);
+		doPost(entity, destinationURL);
 	}
 
-	void postEvent(JsonNode eventJsonNode, Repository repository) {
+	void postEvent(JsonNode eventJsonNode, String destinationURL) {
 		String eventJson = convertToJsonString(eventJsonNode);
 		HttpEntity<String> entity = createEntityWithHeaders(eventJson);
-		doPost(repository, entity);
+		doPost(entity, destinationURL);
 	}
 
 	private String convertToJsonString(ApplicationEvent event) {
@@ -88,12 +80,9 @@ class SettingsAwareEventListener {
 		}
 	}
 
-	private void doPost(Repository repository, HttpEntity<String> entity) {
-		String webhook = repositorySettingsService.getSettings(repository.getId()).get("webhook");
-		if (StringUtils.hasText(webhook)) {
-			RestTemplate restTemplate = new RestTemplate();
-			restTemplate.postForEntity(webhook, entity, String.class, new HashMap<String, String>());
-		}
+	private void doPost(HttpEntity<String> entity, String destinationURL) {
+		RestTemplate restTemplate = new RestTemplate();
+		restTemplate.postForEntity(destinationURL, entity, String.class, new HashMap<String, String>());
 	}
 
 	private HttpEntity<String> createEntityWithHeaders(String eventJson) {

@@ -5,88 +5,95 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.event.api.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-public class PullRequestEventListener extends SettingsAwareEventListener {
+public class PullRequestEventListener extends EventPostingEventListener {
 
 	private static final Logger log = LoggerFactory.getLogger(PullRequestEventListener.class);
 
+	private final RepositorySettingsService repositorySettingsService;
+
 	@Inject
 	public PullRequestEventListener(RepositorySettingsService repositorySettingsService) {
-		super(repositorySettingsService);
+		super();
+		this.repositorySettingsService = repositorySettingsService;
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestReviewersUpdatedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestReviewersUpdatedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestUpdatedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestUpdatedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestReopenedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestReopenedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestRescopedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestRescopedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestParticipantStatusUpdatedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestParticipantStatusUpdatedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestMergedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestMergedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestOpenedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestOpenedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestDeclinedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestDeclinedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommentAddedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestCommentAddedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommentDeletedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestCommentDeletedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommentEditedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestCommentEditedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommentRepliedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestCommentRepliedOn);
 	}
 
 	@EventListener
 	public void postPullRequestEvent(PullRequestCommitCommentAddedEvent event) {
-		postEvent(event);
+		postEvent(event, RepositorySettings::isPullRequestCommitCommentAddedOn);
 	}
 
-	private void postEvent(PullRequestEvent event) {
+	private void postEvent(PullRequestEvent event, RepositorySettingsChecker checker) {
 		Repository repository = event.getPullRequest().getToRef().getRepository();
-		postEvent(event, repository);
+		RepositorySettings repositorySettings = repositorySettingsService.getSettings(repository.getId());
+		if (StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
+			postEvent(event, repositorySettings.getWebhook());
+		}
 	}
 
 }

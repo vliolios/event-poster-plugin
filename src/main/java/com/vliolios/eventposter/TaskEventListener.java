@@ -4,48 +4,49 @@ import com.atlassian.bitbucket.event.task.TaskCreatedEvent;
 import com.atlassian.bitbucket.event.task.TaskDeletedEvent;
 import com.atlassian.bitbucket.event.task.TaskEvent;
 import com.atlassian.bitbucket.event.task.TaskUpdatedEvent;
-import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.repository.RepositoryService;
 import com.atlassian.event.api.EventListener;
-import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 
 @Named
-public class TaskEventListener extends SettingsAwareEventListener {
+public class TaskEventListener extends EventPostingEventListener {
 
-	private final RepositoryService repositoryService;
+	private RepositorySettingsService repositorySettingsService;
 
 	@Inject
-	public TaskEventListener(RepositorySettingsService repositorySettingsService, @ComponentImport RepositoryService repositoryService) {
-		super(repositorySettingsService);
-		this.repositoryService = repositoryService;
+	public TaskEventListener(RepositorySettingsService repositorySettingsService) {
+		super();
+		this.repositorySettingsService = repositorySettingsService;
 	}
 
 	@EventListener
 	public void postPullRequestEvent(TaskCreatedEvent event) {
-		postEvent(event);
+		postEvent(event, settings -> settings.isTaskCreatedOn());
 	}
 
 	@EventListener
 	public void postPullRequestEvent(TaskDeletedEvent event) {
-		postEvent(event);
+		postEvent(event, settings -> settings.isTaskDeletedOn());
 	}
 
 	@EventListener
 	public void postPullRequestEvent(TaskUpdatedEvent event) {
-		postEvent(event);
+		postEvent(event, settings -> settings.isTaskUpdatedOn());
 	}
 
-	private <T extends TaskEvent> void postEvent(TaskEvent event) {
+
+	private void postEvent(TaskEvent event, RepositorySettingsChecker checker) {
 		JsonNode eventJsonNode = convertToJsonNode(event);
 		int repositoryId = eventJsonNode.path("task").path("context").path("fromRef").path("repository").path("id").asInt();
-		Repository repository = repositoryService.getById(repositoryId);
+		RepositorySettings repositorySettings = repositorySettingsService.getSettings(repositoryId);
 
-		if (repository != null) {
-			postEvent(eventJsonNode, repository);
+		if (StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
+			postEvent(eventJsonNode, repositorySettings.getWebhook());
 		}
 	}
+
+
 }

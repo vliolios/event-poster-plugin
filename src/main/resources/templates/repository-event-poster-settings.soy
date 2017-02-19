@@ -28,6 +28,107 @@
                     {param initialValue: $eventPosterSettings.webhook /}
                     {param description: getText('event.poster.plugin.repository.settings.webhook.description') /}
                 {/call}
+
+                <h3 style="padding: 4px 0 4px 145px;">{getText('event.poster.plugin.repository.settings.pull.request.notifications.heading')}</h3>
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestReviewersUpdatedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.reviewers.updated.label') /}
+                    {param checked: $eventPosterSettings.pullRequestReviewersUpdatedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.reviewers.updated.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestUpdatedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.updated.label') /}
+                    {param checked: $eventPosterSettings.pullRequestUpdatedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.updated.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestReopenedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.reopened.label') /}
+                    {param checked: $eventPosterSettings.pullRequestReopenedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.reopened.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestRescopedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.rescoped.label') /}
+                    {param checked: $eventPosterSettings.pullRequestRescopedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.rescoped.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestParticipantStatusUpdatedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.participant.status.updated.label') /}
+                    {param checked: $eventPosterSettings.pullRequestParticipantStatusUpdatedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.participant.status.updated.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestMergedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.merged.label') /}
+                    {param checked: $eventPosterSettings.pullRequestMergedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.merged.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestOpenedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.opened.label') /}
+                    {param checked: $eventPosterSettings.pullRequestOpenedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.opened.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestDeclinedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.declined.label') /}
+                    {param checked: $eventPosterSettings.pullRequestDeclinedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.declined.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestCommentAddedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.comment.added.label') /}
+                    {param checked: $eventPosterSettings.pullRequestCommentAddedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.comment.added.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestCommentDeletedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.comment.deleted.label') /}
+                    {param checked: $eventPosterSettings.pullRequestCommentDeletedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.comment.deleted.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestCommentEditedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.comment.edited.label') /}
+                    {param checked: $eventPosterSettings.pullRequestCommentEditedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.comment.edited.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestCommentRepliedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.comment.replied.label') /}
+                    {param checked: $eventPosterSettings.pullRequestCommentRepliedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.comment.replied.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'pullRequestCommitCommentAddedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.pullrequest.commit.comment.added.label') /}
+                    {param checked: $eventPosterSettings.pullRequestCommitCommentAddedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.pullrequest.commit.comment.added.description') /}
+                {/call}
+
+                <h3 style="padding: 4px 0 4px 145px;">{getText('event.poster.plugin.repository.settings.task.notifications.heading')}</h3>
+                {call widget.aui.form.checkbox}
+                    {param id: 'taskCreatedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.task.created.label') /}
+                    {param checked: $eventPosterSettings.taskCreatedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.task.created.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'taskDeletedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.task.deleted.label') /}
+                    {param checked: $eventPosterSettings.taskDeletedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.task.deleted.description') /}
+                {/call}
+                {call widget.aui.form.checkbox}
+                    {param id: 'taskUpdatedOn' /}
+                    {param labelContent: getText('event.poster.plugin.repository.settings.task.updated.label') /}
+                    {param checked: $eventPosterSettings.taskUpdatedOn /}
+                    {param description: getText('event.poster.plugin.repository.settings.task.updated.description') /}
+                {/call}
+
                 {call aui.form.buttons}
                     {param content}
                         {call aui.form.submit}
