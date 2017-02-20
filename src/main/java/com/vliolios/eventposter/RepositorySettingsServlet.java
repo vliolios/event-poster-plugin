@@ -1,5 +1,8 @@
 package com.vliolios.eventposter;
 
+import com.atlassian.bitbucket.AuthorisationException;
+import com.atlassian.bitbucket.permission.Permission;
+import com.atlassian.bitbucket.permission.PermissionValidationService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.RepositoryService;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -7,6 +10,7 @@ import com.atlassian.soy.renderer.SoyException;
 import com.atlassian.soy.renderer.SoyTemplateRenderer;
 import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -23,28 +27,40 @@ public class RepositorySettingsServlet extends HttpServlet {
 	private final SoyTemplateRenderer soyTemplateRenderer;
 	private final RepositoryService repositoryService;
 	private final RepositorySettingsService repositorySettingsService;
+	private final PermissionValidationService permissionValidationService;
 
 	@Inject
 	public RepositorySettingsServlet(@ComponentImport SoyTemplateRenderer soyTemplateRenderer, @ComponentImport RepositoryService repositoryService,
-	                                 RepositorySettingsService repositorySettingsService) {
+	                                 RepositorySettingsService repositorySettingsService, @ComponentImport PermissionValidationService permissionValidationService) {
 		this.soyTemplateRenderer = soyTemplateRenderer;
 		this.repositoryService = repositoryService;
 		this.repositorySettingsService = repositorySettingsService;
+		this.permissionValidationService = permissionValidationService;
 	}
 
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		Repository repository = loadRepository(request);
-		RepositorySettings settings = repositorySettingsService.getSettings(repository.getId());
-		renderSettingsView(request, response, repository, settings);
+		try {
+			permissionValidationService.validateForRepository(repository, Permission.REPO_ADMIN);
+			RepositorySettings settings = repositorySettingsService.getSettings(repository.getId());
+			renderSettingsView(request, response, repository, settings);
+		} catch (AuthorisationException e) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+		}
+
 	}
 
 	@Override
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
 		Repository repository = loadRepository(request);
-		RepositorySettings settings = repositorySettingsService.setSettings(repository.getId(), getSettingsFromRequest(request));
-		renderSettingsView(request, response, repository, settings);
+		try {
+			permissionValidationService.validateForRepository(repository, Permission.REPO_ADMIN);
+			RepositorySettings settings = repositorySettingsService.setSettings(repository.getId(), getSettingsFromRequest(request));
+			renderSettingsView(request, response, repository, settings);
+		} catch (AuthorisationException e) {
+			response.sendError(HttpServletResponse.SC_FORBIDDEN);
+		}
 	}
 
 	private Repository loadRepository(HttpServletRequest request) {
@@ -60,8 +76,6 @@ public class RepositorySettingsServlet extends HttpServlet {
 	private void renderSettingsView(HttpServletRequest request, HttpServletResponse response, Repository repository, RepositorySettings settings) throws IOException, ServletException {
 		response.setContentType("text/html;charset=UTF-8");
 		try {
-
-
 			Map<String, Object> model = ImmutableMap.<String, Object>builder().put("repository", repository)
 					.put("eventPosterSettings", settings)
 					.build();
@@ -77,7 +91,7 @@ public class RepositorySettingsServlet extends HttpServlet {
 
 	private RepositorySettings getSettingsFromRequest(HttpServletRequest request) {
 		return new RepositorySettings.Builder()
-				.webhook(request.getParameter("webhook"))
+				.webhook(StringUtils.stripToEmpty(request.getParameter("webhook")))
 				.pullRequestReviewersUpdatedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestReviewersUpdatedOn")))
 				.pullRequestUpdatedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestUpdatedOn")))
 				.pullRequestReopenedOn(BooleanUtils.toBoolean(request.getParameter("pullRequestReopenedOn")))
