@@ -32,6 +32,11 @@ public class RepositorySettingsService {
 	}
 
 	private RepositorySettings mapToSettings(Map<String, String> settingsMap) {
+		if (settingsMap == null) {
+			//return the default settings
+			return new RepositorySettings.Builder().build();
+		}
+
 		RepositorySettings repositorySettings = new RepositorySettings.Builder()
 				.webhook(settingsMap.get("webhook"))
 				.pullRequestReviewersUpdatedOn(BooleanUtils.toBoolean(settingsMap.get("pullRequestReviewersUpdatedOn")))
