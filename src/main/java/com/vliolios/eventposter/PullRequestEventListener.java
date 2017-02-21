@@ -7,6 +7,7 @@ import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.function.Predicate;
 
 @Named
 public class PullRequestEventListener {
@@ -85,10 +86,10 @@ public class PullRequestEventListener {
 		postEvent(event, RepositorySettings::isPullRequestCommitCommentAddedOn);
 	}
 
-	private void postEvent(PullRequestEvent event, RepositorySettingsChecker checker) {
+	private void postEvent(PullRequestEvent event, Predicate<RepositorySettings> repositorySettingsChecker) {
 		Repository repository = event.getPullRequest().getToRef().getRepository();
 		RepositorySettings repositorySettings = repositorySettingsService.getSettings(repository.getId());
-		if (repositorySettings != null && StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
+		if (repositorySettings != null && StringUtils.hasText(repositorySettings.getWebhook()) && repositorySettingsChecker.test(repositorySettings)) {
 			eventPoster.postEvent(event, repositorySettings.getWebhook());
 		}
 	}
