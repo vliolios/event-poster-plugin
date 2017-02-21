@@ -10,33 +10,31 @@ import org.springframework.web.client.RestTemplate;
 import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.HashMap;
+import java.util.function.Function;
 
 @Named
 class EventPoster {
 
 	private final EventToJsonConverter eventToJsonConverter;
+	private final RestTemplate restTemplate;
 
 	@Inject
-	public EventPoster(EventToJsonConverter eventToJsonConverter) {
+	public EventPoster(EventToJsonConverter eventToJsonConverter, RestTemplate restTemplate) {
 		this.eventToJsonConverter = eventToJsonConverter;
+		this.restTemplate = restTemplate;
 	}
 
 	void postEvent(ApplicationEvent applicationEvent, String destinationURL) {
-		String eventJson = eventToJsonConverter.convertToJsonString(applicationEvent);
-		HttpEntity<String> entity = createEntityWithHeaders(eventJson);
-		doPost(entity, destinationURL);
+		doPost(destinationURL, converter -> converter.convertToJsonString(applicationEvent));
 	}
 
 	void postEvent(JsonNode eventJsonNode, String destinationURL) {
-		String eventJson = eventToJsonConverter.convertToJsonString(eventJsonNode);
-		HttpEntity<String> entity = createEntityWithHeaders(eventJson);
-		doPost(entity, destinationURL);
+		doPost(destinationURL, converter -> converter.convertToJsonString(eventJsonNode));
 	}
 
-
-
-	private void doPost(HttpEntity<String> entity, String destinationURL) {
-		RestTemplate restTemplate = new RestTemplate();
+	private void doPost(String destinationURL, Function<EventToJsonConverter, String> eventToJsonConversion) {
+		String eventJson = eventToJsonConversion.apply(eventToJsonConverter);
+		HttpEntity<String> entity = createEntityWithHeaders(eventJson);
 		restTemplate.postForEntity(destinationURL, entity, String.class, new HashMap<String, String>());
 	}
 

@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Named;
+import java.util.function.Predicate;
 
 @Named
 public class TaskEventListener {
@@ -27,26 +28,26 @@ public class TaskEventListener {
 
 	@EventListener
 	public void postTaskEvent(TaskCreatedEvent event) {
-		postEvent(event, settings -> settings.isTaskCreatedOn());
+		postEvent(event, RepositorySettings::isTaskCreatedOn);
 	}
 
 	@EventListener
 	public void postTaskEvent(TaskDeletedEvent event) {
-		postEvent(event, settings -> settings.isTaskDeletedOn());
+		postEvent(event, RepositorySettings::isTaskDeletedOn);
 	}
 
 	@EventListener
 	public void postTaskEvent(TaskUpdatedEvent event) {
-		postEvent(event, settings -> settings.isTaskUpdatedOn());
+		postEvent(event, RepositorySettings::isTaskUpdatedOn);
 	}
 
 
-	private void postEvent(TaskEvent event, RepositorySettingsChecker checker) {
+	private void postEvent(TaskEvent event, Predicate<RepositorySettings> repositorySettingsChecker) {
 		JsonNode eventJsonNode = eventToJsonConverter.convertToJsonNode(event);
 		int repositoryId = eventJsonNode.path("task").path("context").path("fromRef").path("repository").path("id").asInt();
 		RepositorySettings repositorySettings = repositorySettingsService.getSettings(repositoryId);
 
-		if (repositorySettings != null && StringUtils.hasText(repositorySettings.getWebhook()) && checker.isEventNotificationOn(repositorySettings)) {
+		if (repositorySettings != null && StringUtils.hasText(repositorySettings.getWebhook()) && repositorySettingsChecker.test(repositorySettings)) {
 			eventPoster.postEvent(eventJsonNode, repositorySettings.getWebhook());
 		}
 	}

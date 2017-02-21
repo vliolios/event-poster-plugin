@@ -7,4 +7,5 @@
         http://www.atlassian.com/schema/atlassian-scanner
         http://www.atlassian.com/schema/atlassian-scanner/atlassian-scanner.xsd">
     <atlassian-scanner:scan-indexes/>
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate"/>
 </beans>
