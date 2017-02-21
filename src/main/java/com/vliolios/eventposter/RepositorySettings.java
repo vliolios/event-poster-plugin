@@ -1,6 +1,27 @@
 package com.vliolios.eventposter;
 
 public class RepositorySettings {
+
+	static class Keys {
+		static final String WEBHOOK = "webhook";
+		static final String PULL_REQUEST_COMMIT_COMMENT_ADDED_ON = "pullRequestCommitCommentAddedOn";
+		static final String PULL_REQUEST_COMMENT_REPLIED_ON = "pullRequestCommentRepliedOn";
+		static final String PULL_REQUEST_COMMENT_EDITED_ON = "pullRequestCommentEditedOn";
+		static final String PULL_REQUEST_COMMENT_DELETED_ON = "pullRequestCommentDeletedOn";
+		static final String PULL_REQUEST_COMMENT_ADDED_ON = "pullRequestCommentAddedOn";
+		static final String PULL_REQUEST_DECLINED_ON = "pullRequestDeclinedOn";
+		static final String PULL_REQUEST_OPENED_ON = "pullRequestOpenedOn";
+		static final String PULL_REQUEST_MERGED_ON = "pullRequestMergedOn";
+		static final String PULL_REQUEST_PARTICIPANT_STATUS_UPDATED_ON = "pullRequestParticipantStatusUpdatedOn";
+		static final String PULL_REQUEST_RESCOPED_ON = "pullRequestRescopedOn";
+		static final String PULL_REQUEST_REOPENED_ON = "pullRequestReopenedOn";
+		static final String PULL_REQUEST_UPDATED_ON = "pullRequestUpdatedOn";
+		static final String PULL_REQUEST_REVIEWERS_UPDATED_ON = "pullRequestReviewersUpdatedOn";
+		static final String TASK_CREATED_ON = "taskCreatedOn";
+		static final String TASK_UPDATED_ON = "taskUpdatedOn";
+		static final String TASK_DELETED_ON = "taskDeletedOn";
+	}
+
 	private String webhook;
 	private boolean pullRequestReviewersUpdatedOn;
 	private boolean pullRequestUpdatedOn;
