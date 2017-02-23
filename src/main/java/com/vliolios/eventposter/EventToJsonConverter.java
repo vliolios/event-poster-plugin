@@ -36,7 +36,7 @@ public class EventToJsonConverter {
 					.addFilter("commentFilter", commentFilter);
 
 
-			return new ObjectMapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+			return getObjectMapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
 					.addMixIn(PullRequestEvent.class, PullRequestEventMixIn.class)
 					.addMixIn(ApplicationUser.class, ApplicationUserMixIn.class)
 					.addMixIn(Watcher.class, WatcherMixIn.class)
@@ -51,33 +51,36 @@ public class EventToJsonConverter {
 
 	String convertToJsonString(JsonNode jsonNode) {
 		try {
-			return new ObjectMapper().writeValueAsString(jsonNode);
-		} catch (JsonProcessingException e) {
+			return getObjectMapper().writeValueAsString(jsonNode);
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	JsonNode convertToJsonNode(ApplicationEvent event) {
 		try {
-			return new ObjectMapper().readTree(convertToJsonString(event));
+			return getObjectMapper().readTree(convertToJsonString(event));
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	protected ObjectMapper getObjectMapper() {
+		return new ObjectMapper();
+	}
 
 	@JsonFilter("eventFilter")
-	private class PullRequestEventMixIn {}
+	interface PullRequestEventMixIn {}
 
 	@JsonFilter("userFilter")
-	private class ApplicationUserMixIn {}
+	interface ApplicationUserMixIn {}
 
 	@JsonFilter("watcherFilter")
-	private class WatcherMixIn {}
+	interface WatcherMixIn {}
 
 	@JsonFilter("participantFilter")
-	private class PullRequestParticipantMixIn {}
+	interface PullRequestParticipantMixIn {}
 
 	@JsonFilter("commentFilter")
-	private class CommentMixIn {}
+	interface CommentMixIn {}
 }
