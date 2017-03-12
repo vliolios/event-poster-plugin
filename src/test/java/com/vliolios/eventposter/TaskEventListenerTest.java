@@ -12,6 +12,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class TaskEventListenerTest {
@@ -26,6 +28,19 @@ public class TaskEventListenerTest {
 			"      }" +
 			"    }" +
 			"  }" +
+			"}";
+
+	private static final String EVENT_JSON_WITH_ACTION = "{" +
+			"  \"task\": {" +
+			"    \"context\": {" +
+			"      \"fromRef\": {" +
+			"        \"repository\": {" +
+			"          \"id\": 1" +
+			"        }" +
+			"      }" +
+			"    }" +
+			"  }," +
+			"\"action\": \"EXISTING_ACTION\"" +
 			"}";
 
 	private static final String EVENT_MISSING_DETAILS_JSON = "{" +
@@ -57,6 +72,7 @@ public class TaskEventListenerTest {
 
 		taskEventListener.postTaskEvent(event);
 
+		assertThat(eventJsonNode.get("action").asText(), equalTo("TASK_CREATED"));
 		verify(eventToJsonConverter, times(1)).convertToJsonNode(event);
 		verify(repositorySettingsService, times(1)).getSettings(1);
 		verifyZeroInteractions(eventPoster);
@@ -67,12 +83,13 @@ public class TaskEventListenerTest {
 	public void testPostTaskCreatedEventNotificationsOn() throws IOException {
 		TaskCreatedEvent event = mock(TaskCreatedEvent.class);
 		RepositorySettings settings = new RepositorySettings.Builder().webhook("http://localhost:8080/abc").taskCreatedOn(true).build();
-		JsonNode eventJsonNode = new ObjectMapper().readTree(EVENT_JSON);
+		JsonNode eventJsonNode = new ObjectMapper().readTree(EVENT_JSON_WITH_ACTION);
 		when(eventToJsonConverter.convertToJsonNode(event)).thenReturn(eventJsonNode);
 		when(repositorySettingsService.getSettings(1)).thenReturn(settings);
 
 		taskEventListener.postTaskEvent(event);
 
+		assertThat(eventJsonNode.get("action").asText(), equalTo("EXISTING_ACTION"));
 		verify(eventToJsonConverter, times(1)).convertToJsonNode(event);
 		verify(repositorySettingsService, times(1)).getSettings(1);
 		verify(eventPoster, times(1)).postEvent(eventJsonNode, "http://localhost:8080/abc");
@@ -83,11 +100,13 @@ public class TaskEventListenerTest {
 
 		TaskDeletedEvent event = mock(TaskDeletedEvent.class);
 		RepositorySettings settings = new RepositorySettings.Builder().webhook("http://localhost:8080/abc").taskDeletedOn(false).build();
-		when(eventToJsonConverter.convertToJsonNode(event)).thenReturn(new ObjectMapper().readTree(EVENT_JSON));
+		JsonNode eventJsonNode = new ObjectMapper().readTree(EVENT_JSON);
+		when(eventToJsonConverter.convertToJsonNode(event)).thenReturn(eventJsonNode);
 		when(repositorySettingsService.getSettings(1)).thenReturn(settings);
 
 		taskEventListener.postTaskEvent(event);
 
+		assertThat(eventJsonNode.get("action").asText(), equalTo("TASK_DELETED"));
 		verify(eventToJsonConverter, times(1)).convertToJsonNode(event);
 		verify(repositorySettingsService, times(1)).getSettings(1);
 		verifyZeroInteractions(eventPoster);
@@ -98,12 +117,13 @@ public class TaskEventListenerTest {
 	public void testPostTaskDeletedEventNotificationsOn() throws IOException {
 		TaskDeletedEvent event = mock(TaskDeletedEvent.class);
 		RepositorySettings settings = new RepositorySettings.Builder().webhook("http://localhost:8080/abc").taskDeletedOn(true).build();
-		JsonNode eventJsonNode = new ObjectMapper().readTree(EVENT_JSON);
+		JsonNode eventJsonNode = new ObjectMapper().readTree(EVENT_JSON_WITH_ACTION);
 		when(eventToJsonConverter.convertToJsonNode(event)).thenReturn(eventJsonNode);
 		when(repositorySettingsService.getSettings(1)).thenReturn(settings);
 
 		taskEventListener.postTaskEvent(event);
 
+		assertThat(eventJsonNode.get("action").asText(), equalTo("EXISTING_ACTION"));
 		verify(eventToJsonConverter, times(1)).convertToJsonNode(event);
 		verify(repositorySettingsService, times(1)).getSettings(1);
 		verify(eventPoster, times(1)).postEvent(eventJsonNode, "http://localhost:8080/abc");
@@ -114,11 +134,13 @@ public class TaskEventListenerTest {
 
 		TaskUpdatedEvent event = mock(TaskUpdatedEvent.class);
 		RepositorySettings settings = new RepositorySettings.Builder().webhook("http://localhost:8080/abc").taskUpdatedOn(false).build();
-		when(eventToJsonConverter.convertToJsonNode(event)).thenReturn(new ObjectMapper().readTree(EVENT_JSON));
+		JsonNode eventJsonNode = new ObjectMapper().readTree(EVENT_JSON);
+		when(eventToJsonConverter.convertToJsonNode(event)).thenReturn(eventJsonNode);
 		when(repositorySettingsService.getSettings(1)).thenReturn(settings);
 
 		taskEventListener.postTaskEvent(event);
 
+		assertThat(eventJsonNode.get("action").asText(), equalTo("TASK_UPDATED"));
 		verify(eventToJsonConverter, times(1)).convertToJsonNode(event);
 		verify(repositorySettingsService, times(1)).getSettings(1);
 		verifyZeroInteractions(eventPoster);
@@ -129,12 +151,13 @@ public class TaskEventListenerTest {
 	public void testPostTaskUpdatedEventNotificationsOn() throws IOException {
 		TaskUpdatedEvent event = mock(TaskUpdatedEvent.class);
 		RepositorySettings settings = new RepositorySettings.Builder().webhook("http://localhost:8080/abc").taskUpdatedOn(true).build();
-		JsonNode eventJsonNode = new ObjectMapper().readTree(EVENT_JSON);
+		JsonNode eventJsonNode = new ObjectMapper().readTree(EVENT_JSON_WITH_ACTION);
 		when(eventToJsonConverter.convertToJsonNode(event)).thenReturn(eventJsonNode);
 		when(repositorySettingsService.getSettings(1)).thenReturn(settings);
 
 		taskEventListener.postTaskEvent(event);
 
+		assertThat(eventJsonNode.get("action").asText(), equalTo("EXISTING_ACTION"));
 		verify(eventToJsonConverter, times(1)).convertToJsonNode(event);
 		verify(repositorySettingsService, times(1)).getSettings(1);
 		verify(eventPoster, times(1)).postEvent(eventJsonNode, "http://localhost:8080/abc");
