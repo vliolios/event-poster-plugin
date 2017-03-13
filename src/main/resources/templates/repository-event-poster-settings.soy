@@ -3,6 +3,7 @@
 /**
  * @param repository
  * @param eventPosterSettings
+ * @param savedSuccessfully
  **/
 {template .repositoryEventPosterSettings}
     <html>
@@ -19,6 +20,9 @@
                 <h2>{getText('event.poster.plugin.repository.settings.title')}</h2>
             {/param}
         {/call}
+        {if $savedSuccessfully}
+            <div style="border: 1px solid;margin: 10px 0px;padding:15px 10px 15px 10px;color: #4F8A10;background-color: #DFF2BF;">Settings saved successfully</div>
+        {/if}
         {call widget.aui.form.form}
             {param action: '' /}
             {param content}

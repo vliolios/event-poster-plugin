@@ -44,7 +44,7 @@ public class RepositorySettingsServlet extends HttpServlet {
 		try {
 			permissionValidationService.validateForRepository(repository, Permission.REPO_ADMIN);
 			RepositorySettings settings = repositorySettingsService.getSettings(repository.getId());
-			renderSettingsView(request, response, repository, settings);
+			renderSettingsView(request, response, repository, settings, false);
 		} catch (AuthorisationException e) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 		}
@@ -57,7 +57,7 @@ public class RepositorySettingsServlet extends HttpServlet {
 		try {
 			permissionValidationService.validateForRepository(repository, Permission.REPO_ADMIN);
 			RepositorySettings settings = repositorySettingsService.setSettings(repository.getId(), getSettingsFromRequest(request));
-			renderSettingsView(request, response, repository, settings);
+			renderSettingsView(request, response, repository, settings, true);
 		} catch (AuthorisationException e) {
 			response.sendError(HttpServletResponse.SC_FORBIDDEN);
 		}
@@ -73,11 +73,12 @@ public class RepositorySettingsServlet extends HttpServlet {
 		return repositoryService.getBySlug(projectKey, repoSlug);
 	}
 
-	private void renderSettingsView(HttpServletRequest request, HttpServletResponse response, Repository repository, RepositorySettings settings) throws IOException, ServletException {
+	private void renderSettingsView(HttpServletRequest request, HttpServletResponse response, Repository repository, RepositorySettings settings, boolean savedSuccessfully) throws IOException, ServletException {
 		response.setContentType("text/html;charset=UTF-8");
 		try {
 			Map<String, Object> model = ImmutableMap.<String, Object>builder().put("repository", repository)
 					.put("eventPosterSettings", settings)
+					.put("savedSuccessfully", savedSuccessfully)
 					.build();
 			soyTemplateRenderer.render(response.getWriter(), "com.vliolios.event-poster-plugin:soy-templates", "bitbucketserver.page.eventposter.settings.repositoryEventPosterSettings", model);
 		} catch (SoyException e) {
