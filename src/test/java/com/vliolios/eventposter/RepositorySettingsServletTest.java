@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Map;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
@@ -61,6 +62,7 @@ public class RepositorySettingsServletTest {
 		Map<String, Object> modelMap = (Map<String, Object>) modelMapArgumentCaptor.getValue();
 		assertThat(modelMap.get("repository"), equalTo(repository));
 		assertThat(modelMap.get("eventPosterSettings"), equalTo(settings));
+		assertThat(modelMap.get("savedSuccessfully"), is(false));
 		verify(repositoryService, times(1)).getBySlug("PROJECT_1", "rep_1");
 	}
 
@@ -88,6 +90,7 @@ public class RepositorySettingsServletTest {
 		Map<String, Object> modelMap = (Map<String, Object>) modelMapArgumentCaptor.getValue();
 		assertThat(modelMap.get("repository"), equalTo(repository));
 		assertThat(modelMap.get("eventPosterSettings"), equalTo(settings));
+		assertThat(modelMap.get("savedSuccessfully"), is(true));
 		verify(repositoryService, times(1)).getBySlug("PROJECT_1", "rep_1");
 
 		ArgumentCaptor<RepositorySettings> repositorySettingsArgumentCaptor = ArgumentCaptor.forClass(RepositorySettings.class);
